@@ -250,7 +250,9 @@ struct Hook {
         : epCfg{[](){
             auto out = pj::EpConfig{};
             out.uaConfig.userAgent = "pjsua++-test";
-            out.logConfig.level = 6;
+            out.uaConfig.threadCnt = 0;
+            out.uaConfig.mainThreadOnly = true;
+            out.logConfig.level = 0;
             out.uaConfig.stunServer.emplace_back("stun.l.google.com:19302");
             return out;
         }()}
@@ -314,8 +316,7 @@ struct Hook {
     int wait()
     {
         ep.start();
-        std::string tmp;
-        std::getline(std::cin, tmp);
+        while (ep.libHandleEvents(1000) >= 0);
         return 0;
     }
     
