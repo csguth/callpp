@@ -11,6 +11,10 @@
 #include <thread>
 #include <chrono>
 
+#include "../callpp/Endpoint.hpp"
+
+using namespace com::csguth::callpp;
+
 
 struct Uri {
     std::string uri;
@@ -207,42 +211,6 @@ struct Account: pj::Account
 
 };
 
-struct Endpoint: pj::Endpoint
-{
-    Endpoint(pj::EpConfig cfg)
-    {
-        libCreate();
-        
-        auto tcfg = pj::TransportConfig();
-        // Optional, set CA/certificate/private key files.
-        // tcfg.tlsConfig.CaListFile = "ca.crt";
-        // tcfg.tlsConfig.certFile = "cert.crt";
-        // tcfg.tlsConfig.privKeyFile = "priv.key";
-        // Optional, set ciphers. You can select a certain cipher/rearrange the order of ciphers here.
-        // tcfg.ciphers = ep->utilSslGetAvailableCiphers();
-        tcfg.tlsConfig.method = PJSIP_TLSV1_2_METHOD;
-        tcfg.tlsConfig.verifyServer = false;
-        pj::TransportId tid = transportCreate(PJSIP_TRANSPORT_TLS, tcfg);
-        
-        
-        libInit(cfg);
-    }
-    
-    void start()
-    {
-        libStart();
-    }
-    
-    void onTransportState(const pj::OnTransportStateParam &prm) override
-    {
-        
-    }
-    
-    ~Endpoint()
-    {
-        libDestroy();
-    }
-};
 
 struct Hook {
   
