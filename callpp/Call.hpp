@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <memory>
+#include <string>
 
 #include "Uid.hpp"
 
@@ -27,6 +28,7 @@ public:
     Uid uid;
 
     void accept();
+    void make(std::string to);
     
 private:
     std::unique_ptr<PjCall> pjCall;

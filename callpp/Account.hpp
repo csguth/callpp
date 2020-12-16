@@ -30,9 +30,11 @@ public:
     ~Account();
     
     std::function<void(Call&)> eventIncomingCall;
+    std::function<void(Call&)> eventOutgoingCall;
     std::function<void(RegisteringEvent)> eventRegistering;
     
     void sendRegister();
+    void makeCall(std::string to);
     
 private:
     std::unique_ptr<PjAccount> self;

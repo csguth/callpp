@@ -15,11 +15,11 @@ int main(int argc, char *argv[])
     .on(
         [](Credentials& credentials)
         {
-            credentials.user = "csguth";
+            credentials.user = "iphone";
         }
     )
     .on(
-        [](Account&, RegisteringEvent event)
+        [](Account& acc, RegisteringEvent event)
         {
             switch (event) {
                 case RegisteringEvent::Registering:
@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
                     break;
                 case RegisteringEvent::Registered:
                     std::cout << "RegisteringEvent::Registered\n";
+                    acc.makeCall("csguth");
                     break;
                 case RegisteringEvent::Unregistered:
                     std::cout << "RegisteringEvent::Unregistered\n";
@@ -41,7 +42,6 @@ int main(int argc, char *argv[])
             {
                 case SignalingEvent::Incoming:
                     std::cout << "Call " << call.uid << " SignalingEvent::Incoming\n";
-                    call.accept();
                     break;
                 case SignalingEvent::Outgoing:
                     std::cout << "Call " << call.uid << " SignalingEvent::Outgoing\n";

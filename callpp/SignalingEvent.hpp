@@ -12,6 +12,7 @@ namespace com::csguth::callpp {
 enum class SignalingEvent
 {
     Incoming,
+    Outgoing,
     Connecting,
     Connected,
     Disconnected

@@ -16,6 +16,24 @@ macro(ADD_OSX_FRAMEWORK fwname target)
     endif()
 endmacro(ADD_OSX_FRAMEWORK)
 
+
+macro(SETUP_MACOSX_BUNDLE target)
+
+    ADD_OSX_FRAMEWORK(AudioUnit ${target})
+    ADD_OSX_FRAMEWORK(AudioToolbox ${target})
+    ADD_OSX_FRAMEWORK(CoreAudio ${target})
+    ADD_OSX_FRAMEWORK(CoreFoundation ${target})
+    ADD_OSX_FRAMEWORK(Foundation ${target})
+    ADD_OSX_FRAMEWORK(Network ${target})
+    ADD_OSX_FRAMEWORK(Security ${target})
+
+    set_target_properties(${target} PROPERTIES
+        MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/apps/${target}.plist
+    )
+
+
+endmacro(SETUP_MACOSX_BUNDLE)
+
 # This little macro lets you set any XCode specific property
 macro (set_xcode_property TARGET XCODE_PROPERTY XCODE_VALUE)
     set_property (TARGET ${TARGET} PROPERTY XCODE_ATTRIBUTE_${XCODE_PROPERTY} ${XCODE_VALUE})
@@ -24,8 +42,7 @@ endmacro (set_xcode_property)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
-add_executable(hello MACOSX_BUNDLE
-apps/hello.cpp
+add_library(callpp
 callpp/Account.cpp
 callpp/Account.hpp
 callpp/Call.cpp
@@ -45,22 +62,19 @@ callpp/Uid.hpp
 callpp/Uri.cpp
 callpp/Uri.hpp
 )
-target_include_directories(hello PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(hello CONAN_PKG::pjproject)
+target_include_directories(callpp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(callpp PUBLIC CONAN_PKG::pjproject)
+
+add_executable(hello MACOSX_BUNDLE apps/hello.cpp)
+target_link_libraries(hello callpp)
+
+add_executable(caller MACOSX_BUNDLE apps/caller.cpp)
+target_link_libraries(caller callpp)
 
 if (APPLE)
 
-    ADD_OSX_FRAMEWORK(AudioUnit hello)
-    ADD_OSX_FRAMEWORK(AudioToolbox hello)
-    ADD_OSX_FRAMEWORK(CoreAudio hello)
-    ADD_OSX_FRAMEWORK(CoreFoundation hello)
-    ADD_OSX_FRAMEWORK(Foundation hello)
-    ADD_OSX_FRAMEWORK(Network hello)
-    ADD_OSX_FRAMEWORK(Security hello)
-
-    set_target_properties(hello PROPERTIES
-        MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/apps/Info.plist
-    )
+    SETUP_MACOSX_BUNDLE(hello)
+    SETUP_MACOSX_BUNDLE(caller)
 
     set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO")
     set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")    
@@ -68,5 +82,8 @@ if (APPLE)
 endif()
 
 set_property(TARGET hello PROPERTY CXX_STANDARD 20)
+set_property(TARGET caller PROPERTY CXX_STANDARD 20)
+set_property(TARGET callpp PROPERTY CXX_STANDARD 20)
 
 install(TARGETS hello DESTINATION bin)
+install(TARGETS caller DESTINATION bin)

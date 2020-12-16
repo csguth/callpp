@@ -60,4 +60,14 @@ void Account::sendRegister()
     self->setRegistration(true);
 }
 
+void Account::makeCall(std::string to)
+{
+    if (!self || !eventOutgoingCall) return;
+    auto pjCall = PjCall::make(*self);
+    auto call = Call{std::move(pjCall)};
+    auto result = calls.insert(std::make_pair(call.uid, std::move(call)));
+    eventOutgoingCall(result.first->second);
+    result.first->second.make(std::move(to));
+}
+
 }

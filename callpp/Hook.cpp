@@ -28,12 +28,13 @@ namespace {
         return out;
     }
 
-    auto makeAccount()
+    auto makeAccount(com::csguth::callpp::Credentials cred)
     {
+        if (cred.user.empty()) cred.user = "csguth";
         auto out = std::make_unique<com::csguth::callpp::PjAccount>();
         
         auto cfg = pj::AccountConfig{};
-        cfg.idUri = "sips:csguth@csguth.com:5061;transport=TLS";
+        cfg.idUri = "sips:" + cred.user + "@csguth.com:5061;transport=TLS";
         cfg.regConfig.registrarUri = "sips:csguth.com:5061;transport=TLS";
         cfg.sipConfig.authCreds.push_back( pj::AuthCredInfo("digest", "*", "test1", 0, "secret1") );
         cfg.mediaConfig.srtpUse = PJMEDIA_SRTP_MANDATORY;
@@ -51,29 +52,49 @@ namespace com::csguth::callpp {
 class Hook::Private {
 public:
     std::function<void(Call&, SignalingEvent)> cb;
-    std::function<void(RegisteringEvent)> registeringEvent;
+    std::function<void(Account&, RegisteringEvent)> registeringEvent;
+    std::function<void(Credentials&)> credentials;
+    
+    Private(Hook& parent)
+    : parent(parent)
+    {}
     
     int run()
     {
         Endpoint ep{makeCfg()};
+
+        auto cred = Credentials{};
+        if (credentials) credentials(cred);
        
-        Account account{makeAccount()};
+        Account account{makeAccount(std::move(cred))};
         
         account.eventIncomingCall = [this](Call& call)
         {
             if (!cb) return;
-            call.eventState = [this, &call](SignalingEvent event){
-                
+            call.eventState = [this, &call](SignalingEvent event)
+            {
                 if (!cb) return;
                 cb(call, event);
             };
             
             cb(call, SignalingEvent::Incoming);
         };
-
-        account.eventRegistering = [this](RegisteringEvent event)
+        
+        account.eventOutgoingCall = [this](Call& call)
         {
-            if (registeringEvent) registeringEvent(event);
+            if (!cb) return;
+            call.eventState = [this, &call](SignalingEvent event)
+            {
+                if (!cb) return;
+                cb(call, event);
+            };
+            
+            cb(call, SignalingEvent::Outgoing);
+        };
+
+        account.eventRegistering = [this, &account](RegisteringEvent event)
+        {
+            if (registeringEvent) registeringEvent(account, event);
         };
         
         ep.start();
@@ -82,18 +103,18 @@ public:
     }
 
 private:
-    
+    Hook& parent;
     
     
 };
 
 Hook::Hook()
-: self{std::make_unique<Private>()}
+: self{std::make_unique<Private>(*this)}
 {}
 
 Hook::~Hook() = default;
 
-Hook& Hook::on(std::function<void(RegisteringEvent)> cb)
+Hook& Hook::on(std::function<void(Account&, RegisteringEvent)> cb)
 {
     self->registeringEvent = std::move(cb);
     return *this;
@@ -104,11 +125,15 @@ Hook& Hook::on(std::function<void(Call&, SignalingEvent)> cb)
     return *this;
 }
 
+Hook& Hook::on(std::function<void(Credentials&)> cb)
+{
+    self->credentials = std::move(cb);
+    return *this;
+}
+
 int Hook::run()
 {
     return self->run();
 }
-
-
 
 }

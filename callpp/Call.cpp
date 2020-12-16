@@ -83,5 +83,14 @@ namespace com::csguth::callpp {
         };
     }
 
+void Call::make(std::string to)
+{
+    auto params = pj::CallOpParam{};
+    params.opt.audioCount = 1;
+    params.opt.videoCount = 0;
+    pjCall->makeCall("<sips:" + std::move(to) + "@csguth.com:5061;transport=TLS>", params);
+}
+
+
 
 }
