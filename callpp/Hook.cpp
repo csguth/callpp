@@ -33,11 +33,11 @@ namespace {
         auto out = std::make_unique<com::csguth::callpp::PjAccount>();
         
         auto cfg = pj::AccountConfig{};
-        cfg.idUri = "sip:csguth@csguth.com:5061;transport=TLS";
-        cfg.regConfig.registrarUri = "sip:csguth.com:5061;transport=TLS";
+        cfg.idUri = "sips:csguth@csguth.com:5061;transport=TLS";
+        cfg.regConfig.registrarUri = "sips:csguth.com:5061;transport=TLS";
         cfg.sipConfig.authCreds.push_back( pj::AuthCredInfo("digest", "*", "test1", 0, "secret1") );
-        cfg.mediaConfig.srtpUse = PJMEDIA_SRTP_DISABLED;
-        cfg.mediaConfig.srtpSecureSignaling = false;
+        cfg.mediaConfig.srtpUse = PJMEDIA_SRTP_MANDATORY;
+        cfg.mediaConfig.srtpSecureSignaling = 2;
 
         out->create(cfg);
         

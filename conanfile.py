@@ -11,7 +11,8 @@ class CallppConan(ConanFile):
     generators = "cmake"
     exports_sources = [
         "CMakeLists.txt",
-        "apps/**"
+        "apps/**",
+        "callpp/**"
     ]
 
     def requirements(self):

@@ -1,8 +1,8 @@
-#include "../callpp/Call.hpp"
-#include "../callpp/Hook.hpp"
-#include "../callpp/Uri.hpp"
-#include "../callpp/RegisteringEvent.hpp"
-#include "../callpp/SignalingEvent.hpp"
+#include <callpp/Call.hpp>
+#include <callpp/Hook.hpp>
+#include <callpp/Uri.hpp>
+#include <callpp/RegisteringEvent.hpp>
+#include <callpp/SignalingEvent.hpp>
 
 #include <iostream>
 

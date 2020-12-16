@@ -24,7 +24,28 @@ endmacro (set_xcode_property)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
-add_executable(hello MACOSX_BUNDLE apps/hello.cpp)
+add_executable(hello MACOSX_BUNDLE
+apps/hello.cpp
+callpp/Account.cpp
+callpp/Account.hpp
+callpp/Call.cpp
+callpp/Call.hpp
+callpp/Endpoint.cpp
+callpp/Endpoint.hpp
+callpp/Hook.cpp
+callpp/Hook.hpp
+callpp/PjAccount.cpp
+callpp/PjAccount.hpp
+callpp/PjCall.cpp
+callpp/PjCall.hpp
+callpp/RegisteringEvent.hpp
+callpp/SignalingEvent.hpp
+callpp/Uid.cpp
+callpp/Uid.hpp
+callpp/Uri.cpp
+callpp/Uri.hpp
+)
+target_include_directories(hello PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(hello CONAN_PKG::pjproject)
 
 if (APPLE)
